@@ -16,7 +16,7 @@ public class Client {
         this.server = server;
     }
 
-    public void begin() throws MalformedURLException, RemoteException, NotBoundException {
+    public void start() throws MalformedURLException, RemoteException, NotBoundException {
         IPrintServer printServer = (IPrintServer) Naming.lookup(String.format(
             "rmi://localhost:%d/%s",
             server.port,
