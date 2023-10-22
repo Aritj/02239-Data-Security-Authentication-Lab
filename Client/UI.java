@@ -10,23 +10,73 @@ public class UI {
 		this.scanner = scanner;
 	}
 
-	public void startLoop(IPrintServer server) throws RemoteException {
-		printOptions();
+	public void activate(IPrintServer server) throws RemoteException {
+		help();
 
 		while (! scanner.hasNext("exit")) {
 			String input = scanner.nextLine();
 
-            switch (input) {
+            switch (input.trim().toLowerCase()) {
+				case "print":
+					print();
+					break;
+				case "queue":
+					queue();
+					break;
+				case "topqueue":
+					topQueue();
+					break;
+				case "start":
+					start();
+					break;
+				case "stop":
+					stop();
+					break;
+				case "restart":
+					restart();
+					break;
+				case "status":
+					status();
+					break;
                 case "help":
-					printOptions();
+					help();
                     break;
                 default:
+					help();
                     break;
             }
 		}
 	}
 	
-	public void printOptions() {
+	private void print() {
+		// TODO: implement feature
+	}
+
+	private void queue() {
+		// TODO: implement feature
+	}
+
+	private void topQueue() {
+		// TODO: implement feature
+	}
+
+	private void start() {
+		// TODO: implement feature
+	}
+
+	private void stop() {
+		// TODO: implement feature
+	}
+
+	private void restart() {
+		// TODO: implement feature
+	}
+
+	private void status() {
+		// TODO: implement feature
+	}
+
+	private void help() {
 	    System.out.println("+-----COMMAND --------------------DESCRIPTION-------------------+");
 	    System.out.println("| print         │ prints file filename on the specified printer |");
 	    System.out.println("| queue         │ lists the print queue for a given printer     |");
@@ -39,9 +89,4 @@ public class UI {
 	    System.out.println("| exit          │ exits application                             |");
 	    System.out.println("+---------------------------------------------------------------+");
 	}
-
-
-
-	
-
 }

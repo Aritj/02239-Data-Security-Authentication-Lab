@@ -4,16 +4,13 @@ import java.rmi.RemoteException;
 
 import Server.Class.ApplicationServer;
 
-
 public class Main {
-    static int port = 5099;
-	
-	static ApplicationServer server = new ApplicationServer();
-	static Client client = new Client();
+	static ApplicationServer server = new ApplicationServer("printer", 5099);
+	static Client client = new Client(server);
 	
 	public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
-		server.begin(port);
-		client.begin(port);
-		server.stopServer();
+		server.start();
+		client.begin();
+		server.stop();
 	}
 }
