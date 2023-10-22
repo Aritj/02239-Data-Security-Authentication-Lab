@@ -1,3 +1,4 @@
+package Server.Interface;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -5,26 +6,26 @@ import java.rmi.RemoteException;
 /**
  * Mock-up of a simple authenticated print server, such as a print server installed in a small company.
  */
-abstract interface IPrintServer extends Remote {
+public abstract interface IPrintServer extends Remote {
     /**
      * Prints file filename on the specified printer.
      * @param filename
-     * @param printer
+     * @param printerName
      */
-    abstract void print(String filename, String printer) throws RemoteException;
+    abstract void print(String filename, String printerName) throws RemoteException;
     
     /**
      * Lists the print queue for a given printer on the user's display in lines of the form "job number   file name".
-     * @param printer
+     * @param printerName
      */
-    abstract String queue(String printer) throws RemoteException;
+    abstract String queue(String printerName) throws RemoteException;
     
     /**
      * Moves job to the top of the queue.
-     * @param printer
+     * @param printerName
      * @param job
      */
-    abstract void topQueue(String printer, int job) throws RemoteException;
+    abstract void topQueue(String printerName, int job) throws RemoteException;
     
     /**
      * Starts the print server.
@@ -43,9 +44,9 @@ abstract interface IPrintServer extends Remote {
     
     /**
      * Prints status of printer on the user's display.
-     * @param printer
+     * @param printerName
      */
-    abstract String status(String printer) throws RemoteException;
+    abstract String status(String printerName) throws RemoteException;
     
     /**
      * Prints the value of the parameter on the print server to the user's display.
