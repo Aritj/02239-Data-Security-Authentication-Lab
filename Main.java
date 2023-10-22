@@ -11,6 +11,5 @@ public class Main {
 	public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
 		server.start();
 		client.begin();
-		server.stop();
 	}
 }

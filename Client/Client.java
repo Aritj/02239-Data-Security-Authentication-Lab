@@ -24,6 +24,8 @@ public class Client {
         ));
 
         printServer.start();
-        ui.activate(printServer);
+        ui.activate(printServer); // <-- loop
+
+		server.stop();
     }
 }
