@@ -9,7 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class ApplicationServer {
 	public final String serviceName;
-    public final int port;
+	public final int port;
 	private Registry registry;
 
 	public ApplicationServer(String serviceName, int port) {
