@@ -16,7 +16,7 @@ public class UI {
 		while (! scanner.hasNext("exit")) {
 			String input = scanner.nextLine();
 
-            switch (input.trim().toLowerCase()) {
+			switch (input.trim().toLowerCase()) {
 				case "print":
 					print();
 					break;
@@ -38,13 +38,13 @@ public class UI {
 				case "status":
 					status();
 					break;
-                case "help":
+				case "help":
 					help();
-                    break;
-                default:
+					break;
+				default:
 					help();
-                    break;
-            }
+					break;
+			}
 		}
 	}
 	
@@ -77,16 +77,16 @@ public class UI {
 	}
 
 	private void help() {
-	    System.out.println("+-----COMMAND --------------------DESCRIPTION-------------------+");
-	    System.out.println("| print         │ prints file filename on the specified printer |");
-	    System.out.println("| queue         │ lists the print queue for a given printer     |");
-	    System.out.println("| topQueue      │ moves job to the top of the queue             |");
-	    System.out.println("| start         │ starts the print server                       |");
-	    System.out.println("| stop          │ stops the print se                            |");
-	    System.out.println("| restart       │ stops, clears and restart server              |");
-	    System.out.println("| status        │ prints status of printer                      |");
-	    System.out.println("| help          │ prints the client options                     |");
-	    System.out.println("| exit          │ exits application                             |");
-	    System.out.println("+---------------------------------------------------------------+");
+		System.out.println("+-----COMMAND --------------------DESCRIPTION-------------------+");
+		System.out.println("| print         │ prints file filename on the specified printer |");
+		System.out.println("| queue         │ lists the print queue for a given printer     |");
+		System.out.println("| topQueue      │ moves job to the top of the queue             |");
+		System.out.println("| start         │ starts the print server                       |");
+		System.out.println("| stop          │ stops the print se                            |");
+		System.out.println("| restart       │ stops, clears and restart server              |");
+		System.out.println("| status        │ prints status of printer                      |");
+		System.out.println("| help          │ prints the client options                     |");
+		System.out.println("| exit          │ exits application                             |");
+		System.out.println("+---------------------------------------------------------------+");
 	}
 }
