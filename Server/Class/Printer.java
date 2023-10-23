@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import Server.Interface.ILogger;
 import Server.Interface.IPrinter;
@@ -16,6 +19,15 @@ class Printer implements IPrinter {
     public Printer(String name, ILogger logger) {
 		this.name = name;
         this.logger = logger;
+
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+
+        service.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                print();
+            }
+        }, 0, 3, TimeUnit.SECONDS);
 	}
 
     @Override
@@ -84,7 +96,7 @@ class Printer implements IPrinter {
             return;
         }
 
-        String fileToPrint = queue.get(0);
+        String fileToPrint = queue.remove(0);
 
         try (Scanner scanner = new Scanner(new File(fileToPrint))) {
             StringBuilder stringBuilder = new StringBuilder(String.format(
