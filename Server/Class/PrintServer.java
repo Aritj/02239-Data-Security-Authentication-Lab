@@ -13,7 +13,7 @@ import Server.Interface.IPrinter;
 
 public class PrintServer extends UnicastRemoteObject implements IPrintServer {
     public final static String NO_PRINTER_ERROR_MESSAGE = "PrintServer couldn't find that printer.";
-
+    private Boolean isStarted = false;
     private ILogger logger;
     private HashMap<String, IPrinter> printers = new HashMap<>();
     private HashMap<String, String> configHashMap = new HashMap<>();
@@ -59,24 +59,39 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
         }
             
         printer.topQueue(job);
+        logger.log("PrintServer started.");
     }
 
     @Override
     public void start() throws RemoteException {
-        logger.log("PrintServer starting.");
+        if (isStarted) {
+            return;
+        }
+
+        isStarted = true;
+        logger.log("PrintServer started.");
     }
 
     @Override
     public void stop() throws RemoteException, NotBoundException {
-        logger.log("PrintServer stopping.");
+        if (! isStarted) {
+            return;
+        }
+
+        isStarted = false;
+        logger.log("PrintServer stopped.");
     }
 
     @Override
     public void restart() throws RemoteException, NotBoundException {
-        logger.log("PrintServer restarting.");
+        if (! isStarted) {
+            return;
+        }
+
         stop();
         printers.clear();
         start();
+        logger.log("PrintServer restarted.");
     }
 
     @Override

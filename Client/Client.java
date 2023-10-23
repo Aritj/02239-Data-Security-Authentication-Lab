@@ -22,8 +22,6 @@ public class Client {
         ));
         Scanner scanner = new Scanner(System.in);
         UI ui = new UI(scanner);
-
-        printServer.start();
         ui.activate(printServer); // <-- loop
         server.stop();
     }

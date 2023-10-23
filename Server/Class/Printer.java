@@ -21,13 +21,15 @@ class Printer implements IPrinter {
         this.logger = logger;
 
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        
+        int printTimerInSeconds = 15;
 
         service.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 print();
             }
-        }, 0, 3, TimeUnit.SECONDS);
+        }, 0, printTimerInSeconds, TimeUnit.SECONDS);
 	}
 
     @Override
@@ -110,7 +112,7 @@ class Printer implements IPrinter {
 
             logger.log(stringBuilder.toString());
         } catch (FileNotFoundException e) {
-            logger.log(e.toString());
+            logger.error(e.toString());
         }
     }
 }

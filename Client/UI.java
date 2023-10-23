@@ -7,6 +7,8 @@ import java.util.Scanner;
 import Server.Interface.IPrintServer;
 
 public class UI {
+	int commandIndex = 0;
+	String terminalString = "Client";
 	private Scanner scanner;
 	private HashMap<String, Runnable> logicHashMap = new HashMap<>();
 	private HashMap<String, String> colorHashMap = new HashMap<>() {{
@@ -43,11 +45,17 @@ public class UI {
 		help();
 		printTerminal();
 
-		while (! scanner.hasNext("exit")) {
-			String input = scanner.nextLine().trim().toLowerCase();
+		String input;
+		while (! (input = scanner.nextLine().trim()).equalsIgnoreCase("exit")) {
+			if (input.isEmpty()) {
+				printTerminal();
+				continue;
+			}
+
 			Runnable method = logicHashMap.getOrDefault(input, () -> help());
 
 			method.run();
+			commandIndex++;
 			printTerminal();
 		}
 	}
@@ -66,7 +74,7 @@ public class UI {
 
 	private void initializeLogicHashMap(IPrintServer server) {
 		logicHashMap.put("help", () -> help());
-		logicHashMap.put("show", () -> show(server, "Printers:"));
+		logicHashMap.put("show", () -> show(server));
 		logicHashMap.put("print", () -> print(server));
 		logicHashMap.put("queue", () -> queue(server));
 		logicHashMap.put("topqueue", () -> topQueue(server));
@@ -101,21 +109,19 @@ public class UI {
 		String printerName = getPrinterName(server);
 		int jobNumber = printMessageGetIntInput(colorText("green","Write job number> "));
 
-		System.out.println(colorText("cyan", String.format("Job number %d sent to top of queue on %s printer.",
-			jobNumber,
-			printerName
-		)));
 
 		try {
 			server.topQueue(printerName, jobNumber);
+			System.out.println(colorText("cyan", String.format("Job number %d sent to top of queue on %s printer.",
+				jobNumber,
+				printerName
+			)));
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void start(IPrintServer server) {
-		System.out.println(colorText("cyan", "Starting server."));
-
 		try {
 			server.start();
 		} catch (RemoteException e) {
@@ -124,8 +130,6 @@ public class UI {
 	}
 
 	private void stop(IPrintServer server) {
-		System.out.println(colorText("cyan", "Stopping server."));
-
 		try {
 			server.stop();
 		} catch (RemoteException | NotBoundException e) {
@@ -186,8 +190,8 @@ public class UI {
 	private String getPrinterName(IPrintServer server) {
 		try {
 			List<String> printerNames = server.getPrinterNames();
-			show(server, "Select a printer:");
-			printTerminal();
+			show(server);
+			printTerminal("Printer");
 			String input = scanner.nextLine().trim();
 			
 			return printerNames.contains(input)
@@ -198,9 +202,9 @@ public class UI {
 		}
 	}
 
-	private void show(IPrintServer server, String message) {
+	private void show(IPrintServer server) {
 		try {
-			StringBuilder stringBuilder = new StringBuilder(message);
+			StringBuilder stringBuilder = new StringBuilder("Available printers:");
 
 			for (int i = 0; i < server.getPrinterNames().size(); i++) {
 				stringBuilder.append(String.format(
@@ -224,9 +228,20 @@ public class UI {
 		}
 	}
 
+	private void printTerminal(String terminalString) {
+		String tempTerminalString = this.terminalString;
+		this.terminalString = terminalString;
+		printTerminal();
+		this.terminalString = tempTerminalString;
+	}
+
 	private void printTerminal() {
-		String terminal = "Client> ";
-		String coloredTerminal = colorText("green", terminal);
+		String terminalFormat = "User@%1$-7s(%2$d) ~ ";
+		String coloredTerminal = colorText("green", String.format(
+			terminalFormat,
+			terminalString,
+			commandIndex
+		));
 
 		System.out.print(coloredTerminal);
 	}
