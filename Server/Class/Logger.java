@@ -10,10 +10,15 @@ public class Logger implements ILogger {
 
     @Override
     public void log(String message) {
+        String ANSI_YELLOW = "\u001B[33m";
+        String ANSI_RESET = "\u001B[0m";
+
         String formattedLogMessage = String.format(
-            "|%s| %s",
+            "\n%s(Logged @ %s) - %s%s\n",
+            ANSI_YELLOW,
             dtf.format(LocalDateTime.now()),
-            message
+            message,
+            ANSI_RESET
         );
 
         // Perform logging

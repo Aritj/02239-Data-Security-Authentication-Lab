@@ -12,17 +12,11 @@ class Printer implements IPrinter {
     private ILogger logger;
     private ArrayList<String> queue = new ArrayList<String>();
 	private String name;
-    private Boolean status = false;
 
     public Printer(String name, ILogger logger) {
 		this.name = name;
         this.logger = logger;
 	}
-
-    @Override
-    public Boolean status() {
-        return status;
-    }
 
     @Override
     public String getPrinterName() {
@@ -57,24 +51,45 @@ class Printer implements IPrinter {
     @Override
     public void addToQueue(String job) {
         queue.add(job);
+
+        logger.log(String.format(
+            "%s added %s to queue.",
+            name,
+            job
+        ));
     }
 
     @Override
-    public void topQueue(int job) {
+    public Boolean topQueue(int job) {
+        if (job >= queue.size()) {
+            return false;
+        }
+
         queue.add(0, queue.remove(job));
+        return true;
     }
 
     @Override
     public void clearQueue() {
         queue.clear();
+        logger.log(String.format(
+            "%s printer queue was cleared.",
+            name
+        ));
     }
 
     @Override
-    public void print(String filename) {
-        try (Scanner scanner = new Scanner(new File(filename))) {
+    public void print() {
+        if (queue.isEmpty()) {
+            return;
+        }
+
+        String fileToPrint = queue.get(0);
+
+        try (Scanner scanner = new Scanner(new File(fileToPrint))) {
             StringBuilder stringBuilder = new StringBuilder(String.format(
                 "Printing '%s'",
-                filename 
+                fileToPrint 
             ));
 
             while (scanner.hasNextLine()) {
@@ -84,6 +99,6 @@ class Printer implements IPrinter {
             logger.log(stringBuilder.toString());
         } catch (FileNotFoundException e) {
             logger.log(e.toString());
-        }    
+        }
     }
 }

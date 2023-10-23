@@ -2,6 +2,7 @@ package Server.Interface;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
 /**
  * Mock-up of a simple authenticated print server, such as a print server installed in a small company.
@@ -60,4 +61,11 @@ public abstract interface IPrintServer extends Remote {
      * @param value
      */
     abstract void setConfig(String parameter, String value) throws RemoteException;
+
+
+    /**
+     * Returns a list of the names of the printers.
+     * @return
+     */
+    abstract List<String> getPrinterNames() throws RemoteException;
 }

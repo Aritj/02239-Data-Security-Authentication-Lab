@@ -3,12 +3,16 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import Server.Class.ApplicationServer;
+import Server.Class.Logger;
+import Server.Interface.ILogger;
 
 public class Main {
-	static ApplicationServer server = new ApplicationServer("printer", 5099);
-	static Client client = new Client(server);
 	
 	public static void main(String[] args) throws RemoteException, MalformedURLException, NotBoundException {
+		ILogger logger = new Logger();
+		ApplicationServer server = new ApplicationServer("printer", 5099, logger);
+		Client client = new Client(server);
+
 		server.start();
 		client.start();
 	}

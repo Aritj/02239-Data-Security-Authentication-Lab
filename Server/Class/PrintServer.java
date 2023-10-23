@@ -3,21 +3,25 @@ package Server.Class;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import Server.Interface.ILogger;
 import Server.Interface.IPrintServer;
 import Server.Interface.IPrinter;
 
 public class PrintServer extends UnicastRemoteObject implements IPrintServer {
-    public final static String ERROR_MESSAGE = "N/A";
+    public final static String NO_PRINTER_ERROR_MESSAGE = "PrintServer couldn't find that printer.";
 
-    private ILogger logger = new Logger();
+    private ILogger logger;
     private HashMap<String, IPrinter> printers = new HashMap<>();
     private HashMap<String, String> configHashMap = new HashMap<>();
 
-    protected PrintServer() throws RemoteException {
+    protected PrintServer(ILogger logger) throws RemoteException {
         super();
+        this.logger = logger;
+        initialize();
     }
 
     @Override
@@ -34,10 +38,16 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
     @Override
     public String queue(String printerName) throws RemoteException {
         IPrinter printer = printers.get(printerName);
+
+        if (printer == null) {
+            return NO_PRINTER_ERROR_MESSAGE;
+        }
+
+        if (printer.getQueue().isEmpty()) {
+            return status(printerName);
+        }
         
-        return printer == null
-            ? ERROR_MESSAGE
-            : printer.getQueueAsString();
+        return printer.getQueueAsString();
     }
 
     @Override
@@ -54,7 +64,6 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
     @Override
     public void start() throws RemoteException {
         logger.log("PrintServer starting.");
-        initialize();
     }
 
     @Override
@@ -75,13 +84,11 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
         IPrinter printer = printers.get(name);
 
         return printer == null
-            ? ERROR_MESSAGE
+            ? NO_PRINTER_ERROR_MESSAGE
             : String.format(
-                "%s status: %s.", 
+                "%s printer has %d jobs in queue.", 
                 printer.getPrinterName(), 
-                printer.status() 
-                    ? "active" 
-                    : "inactive"
+                printer.getQueue().size()
             );
     }
 
@@ -109,5 +116,10 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
         for (String name : new String[]{"Home", "Office", "School"}) {
             printers.put(name, new Printer(name, logger));
         }
+    }
+
+    @Override
+    public List<String> getPrinterNames() throws RemoteException {
+        return new ArrayList<String>(printers.keySet());
     }
 }

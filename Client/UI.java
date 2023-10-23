@@ -1,6 +1,7 @@
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 import Server.Interface.IPrintServer;
@@ -8,6 +9,29 @@ import Server.Interface.IPrintServer;
 public class UI {
 	private Scanner scanner;
 	private HashMap<String, Runnable> logicHashMap = new HashMap<>();
+	private HashMap<String, String> colorHashMap = new HashMap<>() {{
+		put("reset", "\u001B[0m");
+		put("black", "\u001B[30m");
+		put("red", "\u001B[31m");
+		put("green", "\u001B[32m");
+		put("yellow", "\u001B[33m");
+		put("blue", "\u001B[34m");
+		put("purple", "\u001B[35m");
+		put("cyan", "\u001B[36m");
+		put("white", "\u001B[37m");
+	}};
+	private HashMap<String, String> helpHashMap = new HashMap<>() {{
+		put("show", "Shows a list of the available printers");
+		put("print", "Prints file filename on the specified printer");
+		put("queue", "Lists the print queue for a given printer");
+		put("topqueue", "Moves job to the top of the queue");
+		put("start", "Starts the print server");
+		put("stop", "Stops the print server");
+		put("restart", "Stops, clears and restart server");
+		put("status", "Prints status of printer");
+		put("help", "Prints the client options");
+		put("exit", "Exits the application");
+	}};
 
 	public UI(Scanner scanner) {
 		this.scanner = scanner;
@@ -15,22 +39,34 @@ public class UI {
 
 	public void activate(IPrintServer server) throws RemoteException, NotBoundException {
 		initializeLogicHashMap(server);
+		initializeColorHashMap();
 		help();
-		
+		printTerminal();
+
 		while (! scanner.hasNext("exit")) {
 			String input = scanner.nextLine().trim().toLowerCase();
-			Runnable method = logicHashMap.get(input);
-
-			if (method == null) {
-				help();
-				continue;
-			}
+			Runnable method = logicHashMap.getOrDefault(input, () -> help());
 
 			method.run();
+			printTerminal();
 		}
 	}
 
+	private void initializeColorHashMap() {
+		colorHashMap.put("reset", "\u001B[0m");
+		colorHashMap.put("black", "\u001B[30m");
+		colorHashMap.put("red", "\u001B[31m");
+		colorHashMap.put("green", "\u001B[32m");
+		colorHashMap.put("yellow", "\u001B[33m");
+		colorHashMap.put("blue", "\u001B[34m");
+		colorHashMap.put("purple", "\u001B[35m");
+		colorHashMap.put("cyan", "\u001B[36m");
+		colorHashMap.put("white", "\u001B[37m");
+	}
+
 	private void initializeLogicHashMap(IPrintServer server) {
+		logicHashMap.put("help", () -> help());
+		logicHashMap.put("show", () -> show(server, "Printers:"));
 		logicHashMap.put("print", () -> print(server));
 		logicHashMap.put("queue", () -> queue(server));
 		logicHashMap.put("topqueue", () -> topQueue(server));
@@ -41,8 +77,8 @@ public class UI {
 	}
 	
 	private void print(IPrintServer server) {
-		String filename = printMessageGetStringInput("Enter filename: ");
-		String printerName = printMessageGetStringInput("Enter printer name: ");
+		String printerName = getPrinterName(server);
+		String filename = printMessageGetStringInput(colorText("green", "Enter filename> "));
 		
 		try {
 			server.print(filename, printerName);
@@ -52,23 +88,23 @@ public class UI {
 	}
 
 	private void queue(IPrintServer server) {
-		String printerName = printMessageGetStringInput("Enter printer name: ");
+		String printerName = getPrinterName(server);
 
 		try {
-			System.out.println(server.queue(printerName));
+			System.out.println(colorText("cyan", server.queue(printerName)));
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void topQueue(IPrintServer server) {
-		String printerName = printMessageGetStringInput("Enter printer name: ");
-		int jobNumber = printMessageGetIntInput("Write job number: ");
+		String printerName = getPrinterName(server);
+		int jobNumber = printMessageGetIntInput(colorText("green","Write job number> "));
 
-		System.out.println(String.format("Job number %d sent to top of queue on %s printer.",
+		System.out.println(colorText("cyan", String.format("Job number %d sent to top of queue on %s printer.",
 			jobNumber,
 			printerName
-		));
+		)));
 
 		try {
 			server.topQueue(printerName, jobNumber);
@@ -78,7 +114,7 @@ public class UI {
 	}
 
 	private void start(IPrintServer server) {
-		System.out.println("Starting server.");
+		System.out.println(colorText("cyan", "Starting server."));
 
 		try {
 			server.start();
@@ -88,7 +124,7 @@ public class UI {
 	}
 
 	private void stop(IPrintServer server) {
-		System.out.println("Stopping server.");
+		System.out.println(colorText("cyan", "Stopping server."));
 
 		try {
 			server.stop();
@@ -98,7 +134,7 @@ public class UI {
 	}
 
 	private void restart(IPrintServer server) {
-		System.out.println("Restarting server.");
+		System.out.println(colorText("cyan", "Restarting server."));
 
 		try {
 			server.restart();
@@ -108,27 +144,31 @@ public class UI {
 	}
 
 	private void status(IPrintServer server) {
-		String printerName = printMessageGetStringInput("Write name of printer: ");
+		String printerName = getPrinterName(server);
 
 		try {
-			System.out.println(server.status(printerName));
+			System.out.println(colorText("cyan", server.status(printerName)));
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void help() {
-		System.out.println("+-----COMMAND --------------------DESCRIPTION-------------------+");
-		System.out.println("| Print         │ Prints file filename on the specified printer |");
-		System.out.println("| Queue         │ Lists the print queue for a given printer     |");
-		System.out.println("| TopQueue      │ Moves job to the top of the queue             |");
-		System.out.println("| Start         │ Starts the print server                       |");
-		System.out.println("| Stop          │ Stops the print se                            |");
-		System.out.println("| Restart       │ Stops, clears and restart server              |");
-		System.out.println("| Status        │ Prints status of printer                      |");
-		System.out.println("| Help          │ Prints the client options                     |");
-		System.out.println("| Exit          │ Exits the application                         |");
-		System.out.println("+---------------------------------------------------------------+");
+		String header = "+-----COMMAND ---------------------DESCRIPTION--------------------+";
+		String format = "| %1$-15s | %2$-45s |\n";
+		String footer = "+-----------------------------------------------------------------+";
+
+		StringBuilder stringBuilder = new StringBuilder(header + "\n");
+		helpHashMap.forEach((key, value) -> {
+			stringBuilder.append(String.format(
+				format,
+				key,
+				value
+			));
+		});
+		stringBuilder.append(footer);
+
+		System.out.println(colorText("cyan", stringBuilder.toString()));
 	}
 
 	private String printMessageGetStringInput(String message) {
@@ -141,5 +181,62 @@ public class UI {
 		System.out.print(message);
 
 		return Integer.parseInt(scanner.nextLine());
+	}
+
+	private String getPrinterName(IPrintServer server) {
+		try {
+			List<String> printerNames = server.getPrinterNames();
+			show(server, "Select a printer:");
+			printTerminal();
+			String input = scanner.nextLine().trim();
+			
+			return printerNames.contains(input)
+				? input
+				: printerNames.get(tryParseInteger(input));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private void show(IPrintServer server, String message) {
+		try {
+			StringBuilder stringBuilder = new StringBuilder(message);
+
+			for (int i = 0; i < server.getPrinterNames().size(); i++) {
+				stringBuilder.append(String.format(
+					"\n\t%d: %s",
+					i,
+					server.getPrinterNames().get(i)
+				));
+			}
+
+			System.out.println(colorText("cyan", stringBuilder.toString()));
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private Integer tryParseInteger(String intAsString) {
+		try {
+			return Integer.parseInt(intAsString);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private void printTerminal() {
+		String terminal = "Client> ";
+		String coloredTerminal = colorText("green", terminal);
+
+		System.out.print(coloredTerminal);
+	}
+
+	private String colorText(String color, String message) {
+		return String.format(
+			"%s%s%s",
+			colorHashMap.get(color),
+			message,
+			colorHashMap.get("reset")
+		);
 	}
 }

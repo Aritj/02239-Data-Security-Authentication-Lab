@@ -8,8 +8,6 @@ import Server.Class.ApplicationServer;
 import Server.Interface.IPrintServer;
 
 public class Client {
-    private Scanner scanner = new Scanner(System.in);
-    private UI ui = new UI(scanner);
     private ApplicationServer server;
 
     public Client(ApplicationServer server) {
@@ -22,10 +20,11 @@ public class Client {
             server.port,
             server.serviceName
         ));
+        Scanner scanner = new Scanner(System.in);
+        UI ui = new UI(scanner);
 
         printServer.start();
         ui.activate(printServer); // <-- loop
-
         server.stop();
     }
 }
