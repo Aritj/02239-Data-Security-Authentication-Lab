@@ -12,7 +12,7 @@ class Printer implements IPrinter {
     private ILogger logger;
     private ArrayList<String> queue = new ArrayList<String>();
 	private String name;
-    private Boolean status;
+    private Boolean status = false;
 
     public Printer(String name, ILogger logger) {
 		this.name = name;
@@ -50,7 +50,7 @@ class Printer implements IPrinter {
                 queue.get(i)
             ));
         }
-
+        
         return stringBuilder.toString();
     }
 
