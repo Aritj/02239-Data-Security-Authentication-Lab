@@ -3,6 +3,10 @@ package Server.Interface;
 import java.util.ArrayList;
 
 public abstract interface IPrinter {
+    public void start();
+
+    public void stop();
+
     public String getPrinterName();
 
     public void setPrinterName(String name);

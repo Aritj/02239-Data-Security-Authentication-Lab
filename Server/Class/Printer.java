@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import Server.Interface.ILogger;
 import Server.Interface.IPrinter;
 
 class Printer implements IPrinter {
+    ScheduledExecutorService ses;
     private ILogger logger;
     private ArrayList<String> queue = new ArrayList<String>();
 	private String name;
@@ -19,17 +21,6 @@ class Printer implements IPrinter {
     public Printer(String name, ILogger logger) {
 		this.name = name;
         this.logger = logger;
-
-        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-        
-        int printTimerInSeconds = 15;
-
-        service.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                print();
-            }
-        }, 0, printTimerInSeconds, TimeUnit.SECONDS);
 	}
 
     @Override
@@ -114,5 +105,18 @@ class Printer implements IPrinter {
         } catch (FileNotFoundException e) {
             logger.error(e.toString());
         }
+    }
+
+    @Override
+    public void start() {
+        ses = Executors.newSingleThreadScheduledExecutor();
+        final int printTimerInSeconds = (5 + ThreadLocalRandom.current().nextInt(10)) * 1000; // random timer between 10-15s
+
+        ses.scheduleAtFixedRate(this::print, printTimerInSeconds, printTimerInSeconds, TimeUnit.SECONDS);    
+    }
+
+    @Override
+    public void stop() {
+        ses.shutdownNow();
     }
 }

@@ -68,6 +68,10 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
             return;
         }
 
+        printers.values().forEach(printer -> {
+            printer.start();
+        });
+
         isStarted = true;
         logger.log("PrintServer started.");
     }
@@ -77,6 +81,10 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
         if (! isStarted) {
             return;
         }
+
+        printers.values().forEach(printer -> {
+            printer.stop();
+        });
 
         isStarted = false;
         logger.log("PrintServer stopped.");
@@ -89,7 +97,9 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
         }
 
         stop();
-        printers.clear();
+        printers.values().forEach(printer -> {
+            printer.clearQueue();
+        });
         start();
         logger.log("PrintServer restarted.");
     }
