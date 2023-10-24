@@ -13,9 +13,9 @@ import Server.Interface.ILogger;
 import Server.Interface.IPrinter;
 
 class Printer implements IPrinter {
-    ScheduledExecutorService ses;
-    private ILogger logger;
     private ArrayList<String> queue = new ArrayList<String>();
+    private ScheduledExecutorService ses;
+    private ILogger logger;
 	private String name;
 
     public Printer(String name, ILogger logger) {
@@ -56,12 +56,6 @@ class Printer implements IPrinter {
     @Override
     public void addToQueue(String job) {
         queue.add(job);
-
-        logger.log(String.format(
-            "%s added %s to queue.",
-            name,
-            job
-        ));
     }
 
     @Override
@@ -77,10 +71,6 @@ class Printer implements IPrinter {
     @Override
     public void clearQueue() {
         queue.clear();
-        logger.log(String.format(
-            "%s printer queue was cleared.",
-            name
-        ));
     }
 
     @Override
@@ -89,30 +79,46 @@ class Printer implements IPrinter {
             return;
         }
 
-        String fileToPrint = queue.remove(0);
+        String filename = queue.remove(0);
+        String fileContents = read(filename);
 
-        try (Scanner scanner = new Scanner(new File(fileToPrint))) {
-            StringBuilder stringBuilder = new StringBuilder(String.format(
-                "Printing '%s'",
-                fileToPrint 
+        if (fileContents == null) {
+            logger.error(String.format(
+                "%s printer could not find '%s'.",
+                name,
+                filename
             ));
+            return;
+        }
+
+        logger.log(String.format(
+            "%s printer finished printing '%s':\n%s",
+            name,
+            filename,
+            fileContents
+        ));
+    }
+
+    private String read(String filename) {
+        try (Scanner scanner = new Scanner(new File(filename))) {
+            StringBuilder stringBuilder = new StringBuilder();
 
             while (scanner.hasNextLine()) {
                 stringBuilder.append("\n" + scanner.nextLine());
             }
 
-            logger.log(stringBuilder.toString());
+            return stringBuilder.toString();
         } catch (FileNotFoundException e) {
-            logger.error(e.toString());
+            return null;
         }
     }
 
     @Override
     public void start() {
         ses = Executors.newSingleThreadScheduledExecutor();
-        final int printTimerInSeconds = (5 + ThreadLocalRandom.current().nextInt(10)) * 1000; // random timer between 10-15s
+        final int printTimer = 3 + ThreadLocalRandom.current().nextInt(5); // random between 3-8s
 
-        ses.scheduleAtFixedRate(this::print, printTimerInSeconds, printTimerInSeconds, TimeUnit.SECONDS);    
+        ses.scheduleAtFixedRate(this::print, printTimer, printTimer, TimeUnit.SECONDS);
     }
 
     @Override
