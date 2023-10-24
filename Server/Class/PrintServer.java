@@ -12,7 +12,8 @@ import Server.Interface.IPrintServer;
 import Server.Interface.IPrinter;
 
 public class PrintServer extends UnicastRemoteObject implements IPrintServer {
-    public final static String NO_PRINTER_ERROR_MESSAGE = "PrintServer couldn't find that printer.";
+    private String NO_PRINTER_ERROR_MESSAGE = "PrintServer couldn't find that printer.";
+    private String MISSING_KEY_ERROR_MESSAGE = "PrintServer couldn't find that key.";
     private Boolean isStarted = false;
     private ILogger logger;
     private HashMap<String, IPrinter> printers = new HashMap<>();
@@ -110,8 +111,12 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
 
     @Override
     public String readConfig(String parameter) throws RemoteException {
+        if (! configHashMap.containsKey(parameter)) {
+            return MISSING_KEY_ERROR_MESSAGE;
+        }
+
         return String.format(
-            "%s: %s", 
+            "{%s: %s}", 
             parameter,
             configHashMap.get(parameter)
         );

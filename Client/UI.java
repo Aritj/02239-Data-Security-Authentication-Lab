@@ -25,7 +25,6 @@ public class UI {
 		put("white", "\u001B[37m");
 	}};
 	private HashMap<String, String> helpHashMap = new HashMap<>() {{
-		put("show", "Shows a list of the available printers");
 		put("print", "Prints file filename on the specified printer");
 		put("queue", "Lists the print queue for a given printer");
 		put("topqueue", "Moves job to the top of the queue");
@@ -33,8 +32,11 @@ public class UI {
 		put("stop", "Stops the print server");
 		put("restart", "Stops, clears and restart server");
 		put("status", "Prints status of printer");
+		put("readconfig", "Print a parameter value");
+		put("setconfig", "Set a parameter value");
 		put("help", "Prints the client options");
 		put("clear", "Clears the user interface.");
+		put("show", "Shows a list of the available printers");
 		put("exit", "Exits the application");
 	}};
 
@@ -75,7 +77,6 @@ public class UI {
 		}
 
 		initializeLogicHashMap(server);
-		initializeColorHashMap();
 		help();
 		printTerminal();
 	}
@@ -87,21 +88,7 @@ public class UI {
 		)));
 	}
 
-	private void initializeColorHashMap() {
-		colorHashMap.put("reset", "\u001B[0m");
-		colorHashMap.put("black", "\u001B[30m");
-		colorHashMap.put("red", "\u001B[31m");
-		colorHashMap.put("green", "\u001B[32m");
-		colorHashMap.put("yellow", "\u001B[33m");
-		colorHashMap.put("blue", "\u001B[34m");
-		colorHashMap.put("purple", "\u001B[35m");
-		colorHashMap.put("cyan", "\u001B[36m");
-		colorHashMap.put("white", "\u001B[37m");
-	}
-
 	private void initializeLogicHashMap(IPrintServer server) {
-		logicHashMap.put("help", () -> help());
-		logicHashMap.put("show", () -> show(server));
 		logicHashMap.put("print", () -> print(server));
 		logicHashMap.put("queue", () -> queue(server));
 		logicHashMap.put("topqueue", () -> topQueue(server));
@@ -109,7 +96,38 @@ public class UI {
 		logicHashMap.put("stop", () -> stop(server));
 		logicHashMap.put("restart", () -> restart(server));
 		logicHashMap.put("status", () -> status(server));
+		logicHashMap.put("readconfig", () -> readConfig(server));
+		logicHashMap.put("setconfig", () -> setConfig(server));
 		logicHashMap.put("clear", () -> clear());
+		logicHashMap.put("help", () -> help());
+		logicHashMap.put("show", () -> show(server));
+	}
+
+	private void setConfig(IPrintServer server) {
+		String parameter = getParameterName(server);
+
+		System.out.print(colorText("green", String.format(
+		"%s value> ",
+			parameter
+		)));
+
+		String value = scanner.nextLine().trim();
+
+		try {
+			server.setConfig(parameter, value);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void readConfig(IPrintServer server) {
+		String parameter = getParameterName(server);
+		
+		try {
+			System.out.println(colorText("cyan", server.readConfig(parameter)));
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void clear() {
@@ -221,6 +239,12 @@ public class UI {
 		System.out.print(message);
 
 		return Integer.parseInt(scanner.nextLine());
+	}
+
+
+	private String getParameterName(IPrintServer server) {
+		System.out.print(colorText("green", "Parameter name> "));
+		return scanner.nextLine().trim();
 	}
 
 	private String getPrinterName(IPrintServer server) {
