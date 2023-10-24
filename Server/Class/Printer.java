@@ -92,7 +92,7 @@ class Printer implements IPrinter {
         }
 
         logger.log(String.format(
-            "%s printer finished printing '%s':\n%s",
+            "%s printer finished printing '%s':%s",
             name,
             filename,
             fileContents
