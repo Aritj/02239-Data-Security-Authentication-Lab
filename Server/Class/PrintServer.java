@@ -59,7 +59,6 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
         }
             
         printer.topQueue(job);
-        logger.log("PrintServer started.");
     }
 
     @Override
