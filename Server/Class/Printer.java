@@ -19,7 +19,7 @@ class Printer implements IPrinter {
 	private String name;
 
     public Printer(String name, ILogger logger) {
-		this.name = name;
+        this.name = name;
         this.logger = logger;
 	}
 
