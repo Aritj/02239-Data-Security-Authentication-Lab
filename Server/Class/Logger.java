@@ -52,7 +52,6 @@ public class Logger implements ILogger {
     private void toLog(String message) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("printserver.log", true))) {
             writer.append(message);
-            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
