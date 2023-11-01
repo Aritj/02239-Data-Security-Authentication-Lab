@@ -1,5 +1,7 @@
 package Server.Class;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -7,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import Cryptography.Cryptography;
 import Server.Interface.ILogger;
 import Server.Interface.IPrintServer;
 import Server.Interface.IPrinter;
@@ -142,5 +145,12 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
     @Override
     public List<String> getPrinterNames() throws RemoteException {
         return new ArrayList<String>(printers.keySet());
+    }
+
+    @Override
+    public Session authenticateUser(String username, String password) throws FileNotFoundException, IOException {
+        return Cryptography.authenticateUser(username, password)
+            ? new Session(username)
+            : null;
     }
 }
