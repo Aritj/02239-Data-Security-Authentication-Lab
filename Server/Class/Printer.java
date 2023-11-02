@@ -56,6 +56,12 @@ class Printer implements IPrinter {
     @Override
     public void addToQueue(String job) {
         queue.add(job);
+        logger.log(String.format(
+            "%s has added %s to the queue (#%d).",
+            name,
+            job,
+            queue.size() - 1 // 0-index
+        ));
     }
 
     @Override
@@ -64,13 +70,23 @@ class Printer implements IPrinter {
             return false;
         }
 
+        logger.log(String.format(
+            "%s has moved %s to the top of the queue.",
+            name,
+            queue.get(job)
+        ));
         queue.add(0, queue.remove(job));
+
         return true;
     }
 
     @Override
     public void clearQueue() {
         queue.clear();
+        logger.log(String.format(
+            "%s's queue has been cleared.",
+            name
+        ));
     }
 
     @Override
@@ -119,10 +135,20 @@ class Printer implements IPrinter {
         final int printTimer = 3 + ThreadLocalRandom.current().nextInt(5); // random between 3-8s
 
         ses.scheduleAtFixedRate(this::print, printTimer, printTimer, TimeUnit.SECONDS);
+
+        logger.log(String.format(
+            "%s has started printing.",
+            name
+        ));
     }
 
     @Override
     public void stop() {
         ses.shutdownNow();
+        
+        logger.log(String.format(
+            "%s has stopped printing.",
+            name
+        ));
     }
 }

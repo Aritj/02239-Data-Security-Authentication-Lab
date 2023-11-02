@@ -71,9 +71,9 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
             return;
         }
 
+        logger.log("PrintServer started.");
         printers.values().forEach(printer -> printer.start());
         isStarted = true;
-        logger.log("PrintServer started.");
     }
 
     @Override
@@ -149,8 +149,15 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
 
     @Override
     public Session authenticateUser(String username, String password) throws FileNotFoundException, IOException {
-        return Cryptography.authenticateUser(username, password)
-            ? new Session(username)
-            : null;
+        if (! Cryptography.authenticateUser(username, password)) {
+            return null;
+        }
+        
+        logger.log(String.format(
+            "%s has logged in.",
+            username
+        ));
+
+        return new Session(username);
     }
 }
