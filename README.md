@@ -1,4 +1,4 @@
-# 02239-Access-Control-Lab
+# 02239-Data-Security-Access-Control-Lab
 
 This is a group assignment given as part of 02239 Data Security Fall 23 course.
 
