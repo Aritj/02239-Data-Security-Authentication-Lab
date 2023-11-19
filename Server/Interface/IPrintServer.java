@@ -12,55 +12,64 @@ public abstract interface IPrintServer extends Remote {
      * Prints file filename on the specified printer.
      * @param filename
      * @param printerName
+     * @param username
      */
-    abstract void print(String filename, String printerName) throws RemoteException;
+    abstract void print(String filename, String printerName, String username) throws RemoteException;
     
     /**
      * Lists the print queue for a given printer on the user's display in lines of the form "job number   file name".
      * @param printerName
+     * @param username
      */
-    abstract String queue(String printerName) throws RemoteException;
+    abstract String queue(String printerName, String username) throws RemoteException;
     
     /**
      * Moves job to the top of the queue.
      * @param printerName
      * @param job
+     * @param username
      */
-    abstract void topQueue(String printerName, int job) throws RemoteException;
+    abstract void topQueue(String printerName, int job, String username) throws RemoteException;
     
     /**
      * Starts the print server.
+     * @param username
      */
-    abstract void start() throws RemoteException;
+    abstract void start(String username) throws RemoteException;
     
     /**
      * Stops the print server.
+     * @param username
      */
-    abstract void stop() throws RemoteException, NotBoundException;
+    abstract void stop(String username) throws RemoteException, NotBoundException;
     
     /**
      * Stops the print server, clears the print queue and starts the print server again.
+     * @param username
      */
-    abstract void restart() throws RemoteException, NotBoundException;
+    abstract void restart(String username) throws RemoteException, NotBoundException;
     
     /**
      * Prints status of printer on the user's display.
      * @param printerName
+     * @param username
      */
-    abstract String status(String printerName) throws RemoteException;
+    abstract String status(String printerName, String username) throws RemoteException;
     
     /**
      * Prints the value of the parameter on the print server to the user's display.
      * @param parameter
+     * @param username
      */
-    abstract String readConfig(String parameter) throws RemoteException;
+    abstract String readConfig(String parameter, String username) throws RemoteException;
     
     /**
      * Sets the parameter on the print server to value.
      * @param parameter
      * @param value
+     * @param username
      */
-    abstract void setConfig(String parameter, String value) throws RemoteException;
+    abstract void setConfig(String parameter, String value, String username) throws RemoteException;
 
 
     /**

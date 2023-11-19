@@ -1,9 +1,14 @@
 package Server.Class;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,26 +23,74 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
     private ILogger logger;
     private HashMap<String, IPrinter> printers = new HashMap<>();
     private HashMap<String, String> configHashMap = new HashMap<>();
+    private HashMap<String, List<String>> rolePermissions = new HashMap<>();
+    private HashMap<String, String> userRoles = new HashMap<>();
 
-    protected PrintServer(ILogger logger) throws RemoteException {
+    protected PrintServer(ILogger logger) throws RemoteException, IOException {
         super();
         this.logger = logger;
+        loadAccessPolicy(); // Load access control policy
         initialize();
     }
 
+    private void loadAccessPolicy() throws IOException {
+        boolean readingRoles = false;
+        try (BufferedReader reader = new BufferedReader(new FileReader("access_policy.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
+    
+                if (line.equals("[Roles]")) {
+                    readingRoles = true;
+                } else if (line.equals("[Users]")) {
+                    readingRoles = false;
+                } else if (line.contains("=")) {
+                    String[] parts = line.split("=");
+                    if (parts.length > 1) {
+                        if (readingRoles) {
+                            rolePermissions.put(parts[0].trim(), Arrays.asList(parts[1].trim().split(",\\s*")));
+                        } else {
+                            userRoles.put(parts[0].trim(), parts[1].trim());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+
+    private boolean hasPermission(String username, String operation) {
+        String role = userRoles.getOrDefault(username, "");
+        List<String> permissions = rolePermissions.getOrDefault(role, Collections.emptyList());
+        return permissions.contains(operation);
+    }
+
     @Override
-    public void print(String filename, String printerName) throws RemoteException {
+    public void print(String filename, String printerName, String username) throws RemoteException {
+
+        if (!hasPermission(username, "print")) {
+            throw new RemoteException("Access denied.");
+        }
+
+
         IPrinter printer = printers.get(printerName);
 
         if (printer == null) {
-            return;
+            throw new RemoteException(NO_PRINTER_ERROR_MESSAGE);
         }
 
         printer.addToQueue(filename);
     }
  
     @Override
-    public String queue(String printerName) throws RemoteException {
+    public String queue(String printerName, String username) throws RemoteException {
+
+        if (!hasPermission(username, "queue")) {
+            throw new RemoteException("Access denied.");
+        }
+
+
         IPrinter printer = printers.get(printerName);
 
         if (printer == null) {
@@ -45,14 +98,19 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
         }
 
         if (printer.getQueue().isEmpty()) {
-            return status(printerName);
+            return status(printerName, username);
         }
         
         return printer.getQueueAsString();
     }
 
     @Override
-    public void topQueue(String printerName, int job) throws RemoteException {
+    public void topQueue(String printerName, int job, String username) throws RemoteException {
+
+        if (!hasPermission(username, "topQueue")) {
+            throw new RemoteException("Access denied.");
+        }
+
         IPrinter printer = printers.get(printerName);
 
         if (printer == null) {
@@ -63,41 +121,61 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
     }
 
     @Override
-    public void start() throws RemoteException {
+    public void start(String username) throws RemoteException {
+
+        if (!hasPermission(username, "start")) {
+            throw new RemoteException("Access denied.");
+        }
+
         if (isStarted) {
             return;
         }
 
         printers.values().forEach(printer -> printer.start());
         isStarted = true;
-        logger.log("PrintServer started.");
+        logger.log(username + "PrintServer started.");
     }
 
     @Override
-    public void stop() throws RemoteException, NotBoundException {
+    public void stop(String username) throws RemoteException, NotBoundException {
+
+        if (!hasPermission(username, "stop")) {
+            throw new RemoteException("Access denied.");
+        }
+
         if (! isStarted) {
             return;
         }
 
         printers.values().forEach(printer -> printer.stop());
         isStarted = false;
-        logger.log("PrintServer stopped.");
+        logger.log(username + "PrintServer stopped.");
     }
 
     @Override
-    public void restart() throws RemoteException, NotBoundException {
+    public void restart(String username) throws RemoteException, NotBoundException {
+
+        if (!hasPermission(username, "restart")) {
+            throw new RemoteException("Access denied.");
+        }
+
         if (! isStarted) {
             return;
         }
 
-        stop();
+        stop(username);
         printers.values().forEach(printer -> printer.clearQueue());
-        start();
-        logger.log("PrintServer restarted.");
+        start(username);
+        logger.log(username + "PrintServer restarted.");
     }
 
     @Override
-    public String status(String name) throws RemoteException {
+    public String status(String name, String username) throws RemoteException {
+
+        if (!hasPermission(username, "status")) {
+            throw new RemoteException("Access denied.");
+        }
+
         IPrinter printer = printers.get(name);
 
         return printer == null
@@ -110,7 +188,12 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
     }
 
     @Override
-    public String readConfig(String parameter) throws RemoteException {
+    public String readConfig(String parameter, String username) throws RemoteException {
+
+        if (!hasPermission(username, "readConfig")) {
+            throw new RemoteException("Access denied.");
+        }
+
         if (! configHashMap.containsKey(parameter)) {
             return MISSING_KEY_ERROR_MESSAGE;
         }
@@ -123,7 +206,12 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
     }
 
     @Override
-    public void setConfig(String parameter, String value) throws RemoteException {
+    public void setConfig(String parameter, String value, String username) throws RemoteException {
+
+        if (!hasPermission(username, "setConfig")) {
+            throw new RemoteException("Access denied.");
+        }
+
         configHashMap.put(parameter, value);
 
         logger.log(String.format(

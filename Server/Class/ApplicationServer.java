@@ -1,5 +1,6 @@
 package Server.Class;
 
+import java.io.IOException;
 import java.rmi.AccessException;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
@@ -21,7 +22,7 @@ public class ApplicationServer {
 		this.logger = logger;
 	}
 
-	public void start() throws AccessException, RemoteException {
+	public void start() throws AccessException, RemoteException, IOException {
         registry = LocateRegistry.createRegistry(port);
 		registry.rebind(serviceName, new PrintServer(logger));	
 	}
