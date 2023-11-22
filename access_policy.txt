@@ -1,14 +1,16 @@
 [Roles]
 Manager=Technician, PowerUser
+TechnicalUser=Technician, User
 Technician=start, stop, restart, status, readConfig, setConfig
 PowerUser=User, topQueue, restart
 User=print, queue
 
 [Users]
 Alice=Manager
-Bob=Technician
+George=TechnicalUser
 Cecilia=PowerUser
+Ida=PowerUser
 David=User
 Erica=User
 Fred=User
-George=User
+Henry=User
