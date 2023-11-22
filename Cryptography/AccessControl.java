@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-public class AccessControl {
+public class AccessControl implements IAccessControl {
     private HashMap<String, Set<String>> roles = new HashMap<>();
     private HashMap<String, String> users = new HashMap<>();
 
