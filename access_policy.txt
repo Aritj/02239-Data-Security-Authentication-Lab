@@ -1,0 +1,17 @@
+[Roles]
+Manager=print, queue, topQueue, start, stop, restart, status, readConfig, setConfig
+Technician=start, stop, restart, status, readConfig, setConfig
+PowerUser=print, queue, topQueue, restart
+User=print, queue
+
+
+[Users]
+Alice=Manager
+Bob=Technician
+Cecilia=PowerUser
+David=User
+Erica=User
+Fred=User
+George=User
+
+

@@ -21,7 +21,11 @@ public class Client {
             server.serviceName
         ));
         Scanner scanner = new Scanner(System.in);
-        UI ui = new UI(scanner);
+
+        System.out.print("Enter username: ");
+        String username = scanner.nextLine().trim();
+
+        UI ui = new UI(scanner, username);
         ui.activate(printServer); // <-- loop
         server.stop();
     }

@@ -12,6 +12,7 @@ public class UI {
 	private List<String> printerNames;
 	private Scanner scanner;
 	private int commandIndex = 0;
+	private String userName;
 	private Session session = null;
 	private String terminalName = "PrintServer";
 	private HashMap<String, Runnable> logicHashMap = new HashMap<>();
@@ -42,8 +43,9 @@ public class UI {
 		put("exit", "Exits the application");
 	}};
 
-	public UI(Scanner scanner) {
+	public UI(Scanner scanner, String userName) {
 		this.scanner = scanner;
+		this.userName = userName;
 	}
 
 	public void activate(IPrintServer server) throws RemoteException, NotBoundException {
@@ -137,7 +139,7 @@ public class UI {
 		String value = scanner.nextLine().trim();
 
 		try {
-			server.setConfig(parameter, value);
+			server.setConfig(parameter, value, userName);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -147,7 +149,7 @@ public class UI {
 		String parameter = getParameterName(server);
 		
 		try {
-			System.out.println(colorText("cyan", server.readConfig(parameter)));
+			System.out.println(colorText("cyan", server.readConfig(parameter, userName)));
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -167,7 +169,7 @@ public class UI {
 		String filename = printMessageGetStringInput(colorText("green", "Enter filename> "));
 		
 		try {
-			server.print(filename, printerName);
+			server.print(filename, printerName, userName);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -177,7 +179,7 @@ public class UI {
 		String printerName = getPrinterName(server);
 
 		try {
-			System.out.println(colorText("cyan", server.queue(printerName)));
+			System.out.println(colorText("cyan", server.queue(printerName, userName)));
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -188,7 +190,7 @@ public class UI {
 		int jobNumber = printMessageGetIntInput(colorText("green","Enter job number> "));
 
 		try {
-			server.topQueue(printerName, jobNumber);
+			server.topQueue(printerName, jobNumber, userName);
 			System.out.println(colorText("cyan", String.format("Job number %d sent to top of queue on %s printer.",
 				jobNumber,
 				printerName
@@ -200,7 +202,7 @@ public class UI {
 
 	private void start(IPrintServer server) {
 		try {
-			server.start();
+			server.start(userName);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -208,7 +210,7 @@ public class UI {
 
 	private void stop(IPrintServer server) {
 		try {
-			server.stop();
+			server.stop(userName);
 		} catch (RemoteException | NotBoundException e) {
 			e.printStackTrace();
 		}
@@ -218,7 +220,7 @@ public class UI {
 		System.out.println(colorText("cyan", "Restarting server."));
 
 		try {
-			server.restart();
+			server.restart(userName);
 		} catch (RemoteException | NotBoundException e) {
 			e.printStackTrace();
 		}
@@ -228,7 +230,7 @@ public class UI {
 		String printerName = getPrinterName(server);
 
 		try {
-			System.out.println(colorText("cyan", server.status(printerName)));
+			System.out.println(colorText("cyan", server.status(printerName, userName)));
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
