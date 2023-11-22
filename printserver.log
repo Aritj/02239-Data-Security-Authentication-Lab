@@ -1,9 +1,2 @@
-19/11/2023-17:41:21 - AlicePrintServer started.
-19/11/2023-17:41:57 - School printer finished printing 'test.txt':
-Hello world
-
-this
-    is
-a
-test!!!
-19/11/2023-17:42:05 - AlicePrintServer stopped.
+22/11/2023 18:26:34 - test has logged in.
+22/11/2023 18:26:42 - Office has added test.txt to the queue (#0).
