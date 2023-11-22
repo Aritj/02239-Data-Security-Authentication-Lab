@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.regex.Pattern;
 
-
 public class Cryptography {
     private static final String DELIMITER = ":";
     private static final String CREDENTIALS_FILE = "credentials";
@@ -19,13 +18,11 @@ public class Cryptography {
     private static final int ENCRPYTION_INDEX = 0;
     private static final int SALT_INDEX = 1;
 
-    public static Session authenticateUser(String username, String password) throws FileNotFoundException, IOException {
+    public static boolean authenticateUser(String username, String password) throws FileNotFoundException, IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(CREDENTIALS_FILE))) {
             return reader.lines()
                         .map(line -> line.split(Pattern.quote(DELIMITER)))
-                        .anyMatch(fields -> IntegrityMatch(username, password, fields))
-                        ? new Session(username)
-                        : null;
+                        .anyMatch(fields -> IntegrityMatch(username, password, fields));
         }
     }
 

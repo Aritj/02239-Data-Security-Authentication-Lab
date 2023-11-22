@@ -1,8 +1,12 @@
 package Server.Interface;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+
+import Server.Class.Session;
 
 /**
  * Mock-up of a simple authenticated print server, such as a print server installed in a small company.
@@ -77,4 +81,10 @@ public abstract interface IPrintServer extends Remote {
      * @return
      */
     abstract List<String> getPrinterNames() throws RemoteException;
+
+    /**
+     * Authenticates a user based on username and password credentials.
+     * @return Session is user is authenticated or null if credentials are invalid.
+     */
+    abstract Session authenticateUser(String username, String password) throws RemoteException, FileNotFoundException, IOException;
 }

@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import Server.Interface.ILogger;
 
 public class Logger implements ILogger {
-    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/YYYY-HH:mm:ss");
+    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/YYYY HH:mm:ss");
 
     public Logger() {
         clearLog();

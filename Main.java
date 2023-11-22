@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
+import java.security.NoSuchAlgorithmException;
 
 import Server.Class.ApplicationServer;
 import Server.Class.Logger;
@@ -14,6 +14,9 @@ public class Main {
 		ApplicationServer server = new ApplicationServer("printer", 5099, logger);
 		Client client = new Client(server);
 
+		// CREDENTIALS FOR LOGIN (stored in 'credentials'):
+		// admin / 123
+		// test / login
 		server.start();
 		client.start();
 	}

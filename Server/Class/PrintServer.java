@@ -2,6 +2,7 @@ package Server.Class;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -12,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import Cryptography.Cryptography;
 import Server.Interface.ILogger;
 import Server.Interface.IPrintServer;
 import Server.Interface.IPrinter;
@@ -131,9 +133,10 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
             return;
         }
 
+        logger.log("PrintServer started.");
         printers.values().forEach(printer -> printer.start());
         isStarted = true;
-        logger.log(username + "PrintServer started.");
+        logger.log(username + " started PrintServer.");
     }
 
     @Override
@@ -230,5 +233,19 @@ public class PrintServer extends UnicastRemoteObject implements IPrintServer {
     @Override
     public List<String> getPrinterNames() throws RemoteException {
         return new ArrayList<String>(printers.keySet());
+    }
+
+    @Override
+    public Session authenticateUser(String username, String password) throws FileNotFoundException, IOException {
+        if (! Cryptography.authenticateUser(username, password)) {
+            return null;
+        }
+        
+        logger.log(String.format(
+            "%s has logged in.",
+            username
+        ));
+
+        return new Session(username);
     }
 }

@@ -1,9 +1,11 @@
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import Server.Class.Session;
 import Server.Interface.IPrintServer;
 
 public class UI {
@@ -11,6 +13,7 @@ public class UI {
 	private Scanner scanner;
 	private int commandIndex = 0;
 	private String userName;
+	private Session session = null;
 	private String terminalName = "PrintServer";
 	private HashMap<String, Runnable> logicHashMap = new HashMap<>();
 	private HashMap<String, String> colorHashMap = new HashMap<>() {{
@@ -50,6 +53,7 @@ public class UI {
 
 		String input;
 		while (! (input = scanner.nextLine().trim()).equalsIgnoreCase("exit")) {
+			login(server);
 
 			if (input.isEmpty()) {
 				printTerminal();
@@ -78,8 +82,28 @@ public class UI {
 		}
 
 		initializeLogicHashMap(server);
+		login(server);
 		help();
 		printTerminal();
+	}
+
+	private void login(IPrintServer server) {
+		while (session == null || ! session.getSessionState()) {
+			System.out.print(colorText("yellow", "Enter username: "));
+			String username = scanner.nextLine();
+			System.out.print(colorText("yellow", "Enter password: "));
+			String password = scanner.nextLine();
+			
+			try {
+				this.session = server.authenticateUser(username, password);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			if (session == null) {
+				System.out.println(colorText("red", "Invalid credentials!"));
+			}
+		}
 	}
 
 	private void unknown(String command) {
@@ -297,7 +321,7 @@ public class UI {
 		String coloredTerminal = colorText("green", String.format(
 			terminalFormat,
 			commandIndex,
-			userName,
+			session.getUid(),
 			terminalName
 		));
 
